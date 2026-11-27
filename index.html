@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Flat 3403</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Flat 3403">
+<meta name="theme-color" content="#f4f2ee">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+/* The lock in front of the design book; build-locked.mjs fills in the settings below. Same warm neutrals and sage as the book. */
+:root {
+  --bg: #f4f2ee; --surface: #ffffff; --ink: #23262a; --ink-2: #565b61; --ink-3: #868b90; --line: #e2ded6;
+  --accent: #4d6a48; --accent-ink: #ffffff; --bad: #ad3b2b;
+  color-scheme: light;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #131514; --surface: #1b1e1d; --ink: #ecebe7; --ink-2: #b8bbb6; --ink-3: #888c87; --line: #2e3331;
+    --accent: #a8c59d; --accent-ink: #13200f; --bad: #ff8a78; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); }
+body { display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); -webkit-text-size-adjust: 100%; }
+form { width: min(100%, 380px); padding: 26px 24px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 2px rgba(30, 28, 24, .06), 0 8px 24px rgba(30, 28, 24, .08); }
+h1 { margin: 0; font-size: 23px; font-weight: 600; letter-spacing: -.01em; }
+.sub { margin: 4px 0 20px; color: var(--ink-3); font-size: 14.5px; line-height: 1.45; }
+label[for="pw"] { display: block; margin-bottom: 6px; color: var(--ink-2); font-size: 13.5px; }
+input[type="password"] { width: 100%; padding: 12px 14px; font: inherit; font-size: 17px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+input[type="password"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.keep { display: flex; align-items: center; gap: 9px; margin: 14px 0 18px; color: var(--ink-2); font-size: 14.5px; }
+.keep input { width: 19px; height: 19px; margin: 0; accent-color: var(--accent); }
+button { width: 100%; padding: 12px; font: inherit; font-size: 17px; font-weight: 600; color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 10px; cursor: pointer; }
+button:disabled { opacity: .6; cursor: default; }
+.msg { min-height: 21px; margin: 12px 0 0; color: var(--ink-3); font-size: 14px; line-height: 1.45; }
+.msg.bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<form id="lock">
+  <h1>Flat 3403</h1>
+  <p class="sub">Enter the password to open the design.</p>
+  <input type="text" name="username" value="Flat 3403" autocomplete="username" hidden>
+  <label for="pw">Password</label>
+  <input id="pw" name="password" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+  <label class="keep"><input id="keep" type="checkbox" checked> Remember on this device</label>
+  <button id="go" type="submit">Open</button>
+  <p id="msg" class="msg" role="status" aria-live="polite"></p>
+</form>
+<noscript><p style="text-align:center">This page needs JavaScript.</p></noscript>
+<script id="cfg" type="application/json">{"data":"flat-5199731196cb.bin","salt":"wJCfpFu4ISxYcqOrpyfGxw==","iv":"kdOHkBguAxmAWm8d","iter":600000}</script>
+<script>
+// The design book sits in the .bin file, encrypted with AES-GCM under a key made from the password (PBKDF2, SHA-256).
+// The right password unlocks it here, in the browser; the server only ever holds the scrambled file.
+(function () {
+  'use strict';
+  var cfg = JSON.parse(document.getElementById('cfg').textContent);
+  var store = 'flat-key-' + cfg.salt; // a remembered key belongs to one password and salt
+  var $ = function (id) { return document.getElementById(id); };
+  var say = function (text, bad) { $('msg').textContent = text; $('msg').className = 'msg' + (bad ? ' bad' : ''); };
+  var bytes = function (b64) { var s = atob(b64), u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+  var text64 = function (buf) { var u = new Uint8Array(buf), s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+  var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  var set = function (k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* private mode: just ask again next time */ } };
+
+  if (!(window.crypto && crypto.subtle && window.fetch && window.TextEncoder && window.TextDecoder)) {
+    say('This browser cannot open the design. Please update the iPad or phone, then try again in Safari or Chrome.', true);
+    $('go').disabled = true;
+    return;
+  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () { /* works without it, just not offline */ });
+
+  var data = fetch(cfg.data).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
+  data.catch(function () { /* reported when someone tries to open it */ });
+
+  function keyFrom(password) {
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']).then(function (base) {
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: bytes(cfg.salt), iterations: cfg.iter, hash: 'SHA-256' },
+        base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+    });
+  }
+  function unlock(key) {
+    return data.then(function (buf) {
+      return crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(cfg.iv) }, key, buf);
+    }).then(function (plain) { return new TextDecoder().decode(plain); });
+  }
+  function show(html) {
+    document.open();
+    document.write(html);
+    document.close();
+  }
+
+  // A key remembered on this device opens the book straight away.
+  var kept = get(store);
+  if (kept) {
+    say('Opening…');
+    crypto.subtle.importKey('raw', bytes(kept), { name: 'AES-GCM' }, false, ['decrypt']).then(unlock).then(show, function (e) {
+      if (e && e.name === 'OperationError') set(store, null); // the password has changed since
+      say(e && e.name === 'OperationError' ? '' : 'Could not load the design. Check the internet connection and try again.', !(e && e.name === 'OperationError'));
+    });
+  }
+
+  $('lock').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var password = $('pw').value;
+    if (!password) return;
+    $('go').disabled = true;
+    say('Opening…');
+    var key;
+    keyFrom(password).then(function (k) { key = k; return unlock(k); }).then(function (html) {
+      var done = function () { show(html); };
+      if (!$('keep').checked) return done();
+      return crypto.subtle.exportKey('raw', key).then(function (raw) { set(store, text64(raw)); }).then(done, done);
+    }).catch(function (e) {
+      $('go').disabled = false;
+      if (e && e.name === 'OperationError') { say('That password is not right. Please try again.', true); $('pw').select(); }
+      else say('Could not load the design. Check the internet connection and try again.', true);
+    });
+  });
+})();
+</script>
+</body>
+</html>
